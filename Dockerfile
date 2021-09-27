@@ -1,17 +1,15 @@
-FROM golang:1.13-alpine3.11 AS builder
+FROM golang:1.17-alpine3.14 AS builder
 
-RUN mkdir -p /src/src
 WORKDIR /usr/src
+ARG GOOGLE_CLOUD_GO_VERSION
+ENV GOOGLE_CLOUD_GO_VERSION $GOOGLE_CLOUD_GO_VERSION
 
-ENV GOOGLE_CLOUD_GO_VERSION v0.51.0
+RUN busybox wget "https://github.com/googleapis/google-cloud-go/archive/${GOOGLE_CLOUD_GO_VERSION}.tar.gz" -O- | \
+    busybox tar x --strip-components 1 -zf - && \
+    cd bigtable && \
+    go install -v ./cmd/emulator
 
-RUN apk add --no-cache git
-
-RUN git clone --depth=1 --branch="$GOOGLE_CLOUD_GO_VERSION" https://github.com/googleapis/google-cloud-go.git . \
-    && cd bigtable \
-    && go install -v ./cmd/emulator
-
-FROM alpine:3.11
+FROM alpine:3.14
 
 COPY --from=builder /go/bin/emulator /bin/cbtemulator
 
