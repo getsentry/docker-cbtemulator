@@ -1,4 +1,4 @@
-FROM golang:1.17-alpine3.14 AS builder
+FROM golang:1.26-alpine3.24 AS builder
 
 WORKDIR /usr/src
 ARG GOOGLE_CLOUD_GO_VERSION
